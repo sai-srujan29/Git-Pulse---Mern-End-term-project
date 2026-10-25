@@ -4,7 +4,7 @@ import Review from '../models/Review.js';
 
 export const analyzePR = async (req, res, next) => {
   try {
-    const { owner, repo, pullNumber, prData } = req.body;
+    const { owner, repo, pullNumber } = req.body;
 
     if (!owner || !repo || !pullNumber) {
       return res.status(400).json({
@@ -13,17 +13,12 @@ export const analyzePR = async (req, res, next) => {
       });
     }
 
-    let prDetails;
-    if (prData) {
-      prDetails = prData;
-    } else {
-      prDetails = await getPullRequestDetails(
-        req.user._id,
-        owner,
-        repo,
-        pullNumber
-      );
-    }
+    const prDetails = await getPullRequestDetails(
+      req.user._id,
+      owner,
+      repo,
+      pullNumber
+    );
 
     const aiResult = await analyzePullRequestWithAI(prDetails);
 
@@ -35,8 +30,6 @@ export const analyzePR = async (req, res, next) => {
       userId: req.user._id,
     });
 
-    const isDemo = Boolean(prData?.isDemo || prData?.id === 99999);
-
     if (review) {
       review.pullTitle = prDetails.title;
       review.pullAuthor = prDetails.author?.login || '';
@@ -47,7 +40,6 @@ export const analyzePR = async (req, res, next) => {
       review.findings = aiResult.findings;
       review.mergeRecommendation = aiResult.mergeRecommendation;
       review.recommendationReason = aiResult.recommendationReason;
-      review.isDemo = isDemo;
       await review.save();
     } else {
       review = await Review.create({
@@ -63,7 +55,6 @@ export const analyzePR = async (req, res, next) => {
         findings: aiResult.findings,
         mergeRecommendation: aiResult.mergeRecommendation,
         recommendationReason: aiResult.recommendationReason,
-        isDemo,
       });
     }
 

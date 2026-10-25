@@ -11,7 +11,6 @@ import {
   Layers,
   FileText,
   AlertOctagon,
-  FlaskConical,
 } from 'lucide-react';
 import PRHealthScoreGauge from './PRHealthScoreGauge';
 import toast from 'react-hot-toast';
@@ -72,7 +71,7 @@ const AIReviewDisplay = ({ review }) => {
   };
 
   const exportMarkdownComment = () => {
-    const md = `### ⚡ GitPulse AI Code Review & PR Health Audit${review.isDemo ? '\n> 🧪 *Mode: Interactive Demo Sandbox (Simulated PR for testing empty repositories)*\n' : ''}
+    const md = `### ⚡ GitPulse AI Code Review & PR Health Audit
 
 **PR Health Score**: ${healthScore}/100 • **Risk Level**: ${riskLevel.toUpperCase()} • **Recommendation**: ${mergeRecommendation.toUpperCase()}
 
@@ -111,15 +110,7 @@ ${findings
             <Sparkles size={20} />
           </div>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <h3 className="card-title">AI Pull Request Audit</h3>
-              {review.isDemo && (
-                <span className="badge badge-demo" title="Conducted on simulated PR sandbox data">
-                  <FlaskConical size={11} />
-                  <span>Demo Audit</span>
-                </span>
-              )}
-            </div>
+            <h3 className="card-title">AI Pull Request Audit</h3>
             <p className="card-subtitle">
               Powered by Google Gemini • Deep contextual code analysis
             </p>

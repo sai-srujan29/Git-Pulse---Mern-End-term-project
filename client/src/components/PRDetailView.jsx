@@ -9,7 +9,6 @@ import {
   ExternalLink,
   ChevronDown,
   ChevronUp,
-  FlaskConical,
 } from 'lucide-react';
 
 const PRDetailView = ({
@@ -35,8 +34,6 @@ const PRDetailView = ({
     return null;
   }
 
-  const isDemo = Boolean(prDetails.isDemo || prDetails.id === 99999);
-
   const toggleFile = (idx) => {
     setExpandedFiles((prev) => ({
       ...prev,
@@ -46,32 +43,10 @@ const PRDetailView = ({
 
   return (
     <div className="card pr-detail-card">
-      {isDemo && (
-        <div className="demo-notice-banner">
-          <div className="demo-notice-icon-box">
-            <FlaskConical size={20} />
-          </div>
-          <div className="demo-notice-text">
-            <h4>🧪 Interactive Demo PR (Simulated Sandbox)</h4>
-            <p>
-              This sample pull request was loaded to test repositories that do not yet have active PRs on GitHub.
-              It allows evaluators to test the <strong>Diff Viewer</strong> and <strong>Gemini AI Code Audit</strong> without manual branch setup.
-              For live GitHub REST API data, inspect <strong>PR #1</strong> on your <code>Git-Pulse</code> repo.
-            </p>
-          </div>
-        </div>
-      )}
-
       <div className="pr-detail-banner">
         <div className="pr-detail-meta-left">
           <div className="pr-number-title-row">
             <span className="badge badge-open">#{prDetails.number}</span>
-            {isDemo && (
-              <span className="badge badge-demo" title="Simulated sample PR for empty repository testing">
-                <FlaskConical size={12} />
-                <span>Demo Sandbox</span>
-              </span>
-            )}
             <h2 className="pr-detail-title">{prDetails.title}</h2>
           </div>
 
@@ -92,9 +67,9 @@ const PRDetailView = ({
             target="_blank"
             rel="noreferrer"
             className="btn btn-ghost btn-sm"
-            title={isDemo ? 'View repository on GitHub' : 'View PR on GitHub'}
+            title="View PR on GitHub"
           >
-            <span>{isDemo ? 'Repo on GitHub' : 'View on GitHub'}</span>
+            <span>View on GitHub</span>
             <ExternalLink size={14} />
           </a>
 

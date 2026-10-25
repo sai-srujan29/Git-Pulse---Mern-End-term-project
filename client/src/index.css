@@ -1108,60 +1108,6 @@ body::before {
   border: 1px solid rgba(168, 85, 247, 0.3);
 }
 
-.badge-demo {
-  background: rgba(245, 158, 11, 0.15);
-  color: #fbbf24;
-  border: 1px solid rgba(245, 158, 11, 0.35);
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.demo-notice-banner {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-3);
-  padding: var(--space-4) var(--space-6);
-  background: linear-gradient(90deg, rgba(245, 158, 11, 0.12) 0%, rgba(217, 119, 6, 0.06) 100%);
-  border-bottom: 1px solid rgba(245, 158, 11, 0.25);
-  animation: fadeIn 0.3s ease;
-}
-
-.demo-notice-icon-box {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: var(--radius-md);
-  background: rgba(245, 158, 11, 0.2);
-  color: #fbbf24;
-  flex-shrink: 0;
-  margin-top: 2px;
-}
-
-.demo-notice-text h4 {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #fde68a;
-  margin-bottom: 2px;
-}
-
-.demo-notice-text p {
-  font-size: 0.8125rem;
-  color: rgba(254, 243, 199, 0.85);
-  line-height: 1.45;
-  margin: 0;
-}
-
-.demo-notice-text code {
-  background: rgba(0, 0, 0, 0.3);
-  padding: 1px 5px;
-  border-radius: 4px;
-  color: #fbbf24;
-  font-size: 0.75rem;
-}
-
 .pr-item-details {
   display: flex;
   align-items: center;
