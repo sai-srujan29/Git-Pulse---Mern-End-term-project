@@ -9,6 +9,8 @@ import {
   ExternalLink,
   ChevronDown,
   ChevronUp,
+  CheckCircle2,
+  XCircle,
 } from 'lucide-react';
 
 const PRDetailView = ({
@@ -41,12 +43,38 @@ const PRDetailView = ({
     }));
   };
 
+  const getStatusBadge = () => {
+    if (prDetails.mergedAt) {
+      return (
+        <span className="badge badge-merged">
+          <CheckCircle2 size={12} />
+          <span>Merged</span>
+        </span>
+      );
+    }
+    if (prDetails.state === 'closed') {
+      return (
+        <span className="badge badge-closed">
+          <XCircle size={12} />
+          <span>Closed</span>
+        </span>
+      );
+    }
+    return (
+      <span className="badge badge-open">
+        <GitPullRequest size={12} />
+        <span>Open</span>
+      </span>
+    );
+  };
+
   return (
     <div className="card pr-detail-card">
       <div className="pr-detail-banner">
         <div className="pr-detail-meta-left">
           <div className="pr-number-title-row">
-            <span className="badge badge-open">#{prDetails.number}</span>
+            {getStatusBadge()}
+            <span className="pr-number">#{prDetails.number}</span>
             <h2 className="pr-detail-title">{prDetails.title}</h2>
           </div>
 
