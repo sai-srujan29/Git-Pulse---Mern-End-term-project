@@ -11,6 +11,7 @@ import connectDB from './config/db.js';
 import config from './config/config.js';
 import authRoutes from './routes/authRoutes.js';
 import repoRoutes from './routes/repoRoutes.js';
+import reviewRoutes from './routes/reviewRoutes.js';
 import { errorHandler, notFound } from './middleware/errorHandler.js';
 
 const app = express();
@@ -40,6 +41,7 @@ app.get('/api/health', (req, res) => {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/repos', repoRoutes);
+app.use('/api/reviews', reviewRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

@@ -11,11 +11,13 @@ import {
 import RepoSelector from '../components/RepoSelector';
 import PRList from '../components/PRList';
 import PRDetailView from '../components/PRDetailView';
+import AIReviewDisplay from '../components/AIReviewDisplay';
 import {
   getRepositories,
   getPullRequests,
   getPullRequestDetails,
 } from '../services/repoService';
+import { analyzePullRequest } from '../services/reviewService';
 import toast from 'react-hot-toast';
 
 const Dashboard = () => {
@@ -30,6 +32,8 @@ const Dashboard = () => {
 
   const [prDetails, setPrDetails] = useState(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
+
+  const [currentReview, setCurrentReview] = useState(null);
   const [analyzing, setAnalyzing] = useState(false);
 
   useEffect(() => {
@@ -57,6 +61,7 @@ const Dashboard = () => {
     setSelectedRepo(repo);
     setSelectedPR(null);
     setPrDetails(null);
+    setCurrentReview(null);
     setLoadingPRs(true);
 
     try {
@@ -74,6 +79,7 @@ const Dashboard = () => {
 
   const handleSelectPR = async (pr, repo = selectedRepo) => {
     setSelectedPR(pr);
+    setCurrentReview(null);
     setLoadingDetails(true);
 
     try {
@@ -91,10 +97,29 @@ const Dashboard = () => {
     }
   };
 
-  const handleRunAIAnalysis = () => {
-    if (!prDetails) return;
-    toast.success(`Starting AI Audit on PR #${prDetails.number}...`);
-    // This connects to Task 4 / 5 AI Review engine
+  const handleRunAIAnalysis = async () => {
+    if (!prDetails || !selectedRepo) return;
+    setAnalyzing(true);
+    const toastId = toast.loading('Running Gemini AI code audit...');
+
+    try {
+      const data = await analyzePullRequest(
+        selectedRepo.owner,
+        selectedRepo.name,
+        prDetails.number
+      );
+
+      if (data && data.review) {
+        setCurrentReview(data.review);
+        toast.success('AI Audit completed successfully!', { id: toastId });
+      } else {
+        toast.error('Failed to generate review.', { id: toastId });
+      }
+    } catch (err) {
+      toast.error('Error generating AI audit. Please retry.', { id: toastId });
+    } finally {
+      setAnalyzing(false);
+    }
   };
 
   return (
@@ -156,7 +181,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Workspace Layout: Left Sidebar = Repos + PR list; Right Main = PR Diff & Audit */}
+        {/* Workspace Layout: Left Sidebar = Repos + PR list; Right Main = AI Review + PR Diff */}
         <div className="workspace-layout">
           <div className="workspace-sidebar">
             <RepoSelector
@@ -178,6 +203,10 @@ const Dashboard = () => {
           </div>
 
           <div className="workspace-main">
+            {currentReview && (
+              <AIReviewDisplay review={currentReview} />
+            )}
+
             {selectedPR ? (
               <PRDetailView
                 prDetails={prDetails}
