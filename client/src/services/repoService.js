@@ -22,6 +22,7 @@ export const getDemoPullRequestData = (repoName = 'Shopkart') => {
 
   if (lower.includes('shop') || lower.includes('cart')) {
     return {
+      isDemo: true,
       id: 99999,
       number: 14,
       title: 'feat(cart): implement tiered coupon discount & inventory reservation lock',
@@ -94,6 +95,7 @@ export const getDemoPullRequestData = (repoName = 'Shopkart') => {
 
   if (lower.includes('weather')) {
     return {
+      isDemo: true,
       id: 99999,
       number: 8,
       title: 'feat(cache): add 30-minute in-memory cache for OpenWeather forecast calls',
@@ -154,6 +156,7 @@ export const getDemoPullRequestData = (repoName = 'Shopkart') => {
 
   if (lower.includes('game') || lower.includes('match')) {
     return {
+      isDemo: true,
       id: 99999,
       number: 19,
       title: 'feat(engine): add Fisher-Yates deck shuffle and combo streak bonus',
@@ -199,6 +202,7 @@ export const getDemoPullRequestData = (repoName = 'Shopkart') => {
 
   // Default for other repos
   return {
+    isDemo: true,
     id: 99999,
     number: 27,
     title: `refactor(${repoName}): optimize async pipeline & sanitize inputs`,

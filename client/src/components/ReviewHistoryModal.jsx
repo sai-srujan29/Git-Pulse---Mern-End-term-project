@@ -34,6 +34,11 @@ const ReviewHistoryModal = ({ isOpen, onClose, history, onLoadReview }) => {
                     <div className="history-repo-row">
                       <span className="history-repo">{rev.repoFullName}</span>
                       <span className="history-pr-num">#{rev.pullNumber}</span>
+                      {rev.isDemo && (
+                        <span className="badge badge-demo" style={{ padding: '1px 6px', fontSize: '0.6875rem' }}>
+                          Demo
+                        </span>
+                      )}
                     </div>
                     <h5 className="history-pr-title">{rev.pullTitle}</h5>
                     <span className="history-date">

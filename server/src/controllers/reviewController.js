@@ -35,6 +35,8 @@ export const analyzePR = async (req, res, next) => {
       userId: req.user._id,
     });
 
+    const isDemo = Boolean(prData?.isDemo || prData?.id === 99999);
+
     if (review) {
       review.pullTitle = prDetails.title;
       review.pullAuthor = prDetails.author?.login || '';
@@ -45,6 +47,7 @@ export const analyzePR = async (req, res, next) => {
       review.findings = aiResult.findings;
       review.mergeRecommendation = aiResult.mergeRecommendation;
       review.recommendationReason = aiResult.recommendationReason;
+      review.isDemo = isDemo;
       await review.save();
     } else {
       review = await Review.create({
@@ -60,6 +63,7 @@ export const analyzePR = async (req, res, next) => {
         findings: aiResult.findings,
         mergeRecommendation: aiResult.mergeRecommendation,
         recommendationReason: aiResult.recommendationReason,
+        isDemo,
       });
     }
 
