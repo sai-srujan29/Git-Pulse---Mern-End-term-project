@@ -11,9 +11,10 @@ const signToken = (id) => {
 
 export const getGithubAuthUrl = (req, res) => {
   const scope = 'read:user,user:email,repo';
-  const url = `https://github.com/login/oauth/authorize?client_id=${config.github.clientId}&scope=${encodeURIComponent(
-    scope
-  )}`;
+  const callbackUrl = config.github.callbackUrl || 'http://localhost:5000/api/auth/github/callback';
+  const url = `https://github.com/login/oauth/authorize?client_id=${config.github.clientId}&redirect_uri=${encodeURIComponent(
+    callbackUrl
+  )}&scope=${encodeURIComponent(scope)}`;
   res.redirect(url);
 };
 

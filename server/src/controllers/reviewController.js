@@ -4,7 +4,7 @@ import Review from '../models/Review.js';
 
 export const analyzePR = async (req, res, next) => {
   try {
-    const { owner, repo, pullNumber } = req.body;
+    const { owner, repo, pullNumber, prData } = req.body;
 
     if (!owner || !repo || !pullNumber) {
       return res.status(400).json({
@@ -13,12 +13,17 @@ export const analyzePR = async (req, res, next) => {
       });
     }
 
-    const prDetails = await getPullRequestDetails(
-      req.user._id,
-      owner,
-      repo,
-      pullNumber
-    );
+    let prDetails;
+    if (prData) {
+      prDetails = prData;
+    } else {
+      prDetails = await getPullRequestDetails(
+        req.user._id,
+        owner,
+        repo,
+        pullNumber
+      );
+    }
 
     const aiResult = await analyzePullRequestWithAI(prDetails);
 

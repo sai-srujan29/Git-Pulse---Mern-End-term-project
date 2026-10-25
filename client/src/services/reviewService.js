@@ -1,10 +1,11 @@
 import api from './api.js';
 
-export const analyzePullRequest = async (owner, repo, pullNumber) => {
+export const analyzePullRequest = async (owner, repo, pullNumber, prData = null) => {
   const response = await api.post('/reviews/analyze', {
     owner,
     repo,
     pullNumber,
+    prData,
   });
   return response.data;
 };

@@ -18,6 +18,7 @@ import {
   getRepositories,
   getPullRequests,
   getPullRequestDetails,
+  getDemoPullRequestData,
 } from '../services/repoService';
 import { analyzePullRequest, getReviewHistory } from '../services/reviewService';
 import toast from 'react-hot-toast';
@@ -114,16 +115,26 @@ const Dashboard = () => {
     }
   };
 
+  const handleLoadDemoPR = () => {
+    const demo = getDemoPullRequestData(selectedRepo?.name || 'Shopkart');
+    setSelectedPR(demo);
+    setPrDetails(demo);
+    setCurrentReview(null);
+    toast.success('Loaded sample Pull Request for AI Audit!');
+  };
+
   const handleRunAIAnalysis = async () => {
     if (!prDetails || !selectedRepo) return;
     setAnalyzing(true);
     const toastId = toast.loading('Running Gemini AI code audit...');
 
     try {
+      const isDemo = prDetails.id === 99999;
       const data = await analyzePullRequest(
         selectedRepo.owner,
         selectedRepo.name,
-        prDetails.number
+        prDetails.number,
+        isDemo ? prDetails : null
       );
 
       if (data && data.review) {
@@ -240,13 +251,47 @@ const Dashboard = () => {
                 onAnalyze={handleRunAIAnalysis}
                 analyzing={analyzing}
               />
+            ) : selectedRepo ? (
+              <div className="card empty-workspace-card">
+                <div className="empty-state-box">
+                  <div className="card-icon-badge primary" style={{ width: 56, height: 56 }}>
+                    <Sparkles size={28} />
+                  </div>
+                  <h3 className="empty-state-title" style={{ fontSize: '1.25rem' }}>
+                    0 Pull Requests in {selectedRepo.name}
+                  </h3>
+                  <p className="empty-state-desc" style={{ maxWidth: 480 }}>
+                    All code in this repository was committed directly to main, so there are no open or closed pull requests on GitHub yet.
+                    <br /><br />
+                    Click below to load an interactive pull request sample with real diffs and test the <strong>Google Gemini AI PR Audit</strong>!
+                  </p>
+                  <div style={{ display: 'flex', gap: '12px', marginTop: '16px', flexWrap: 'wrap', justifyContent: 'center' }}>
+                    <button
+                      onClick={handleLoadDemoPR}
+                      className="btn btn-primary"
+                    >
+                      <Sparkles size={16} />
+                      <span>✨ Load Sample PR for AI Audit</span>
+                    </button>
+                    <a
+                      href={`${selectedRepo.url}/compare`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="btn btn-ghost"
+                    >
+                      <span>Create PR on GitHub</span>
+                      <ExternalLink size={14} />
+                    </a>
+                  </div>
+                </div>
+              </div>
             ) : (
               <div className="card empty-workspace-card">
                 <div className="empty-state-box">
                   <GitPullRequest size={48} className="empty-state-icon" />
-                  <p className="empty-state-title">No Pull Request Selected</p>
+                  <p className="empty-state-title">No Repository Selected</p>
                   <p className="empty-state-desc">
-                    Choose a repository from the left panel and select any pull request to view changed files, diffs, and generate AI insights.
+                    Choose a repository from the left panel to begin.
                   </p>
                 </div>
               </div>
