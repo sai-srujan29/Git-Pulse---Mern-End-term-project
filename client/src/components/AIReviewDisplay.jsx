@@ -70,18 +70,61 @@ const AIReviewDisplay = ({ review }) => {
     }
   };
 
+  const exportMarkdownComment = () => {
+    const md = `### ⚡ GitPulse AI Code Review & PR Health Audit
+
+**PR Health Score**: ${healthScore}/100 • **Risk Level**: ${riskLevel.toUpperCase()} • **Recommendation**: ${mergeRecommendation.toUpperCase()}
+
+> ${summary}
+
+#### 📊 Quality Breakdown
+| Metric | Score |
+|---|---|
+| 📐 Complexity | ${breakdown.complexityScore || 80}/100 |
+| 🧪 Testing | ${breakdown.testingScore || 80}/100 |
+| 🛡️ Security | ${breakdown.securityScore || 90}/100 |
+| 📝 Documentation | ${breakdown.docsScore || 75}/100 |
+
+#### 🔍 Actionable Findings (${findings.length})
+${findings
+  .map(
+    (f, i) =>
+      `${i + 1}. **[${f.severity.toUpperCase()}] ${f.title}** (${f.file}${
+        f.line ? `:${f.line}` : ''
+      })\n   - *Issue*: ${f.description}\n   - *Suggestion*: \`${f.suggestion}\``
+  )
+  .join('\n\n')}
+
+---
+*Generated automatically by [GitPulse](https://github.com/sai-srujan29/Git-Pulse---Mern-End-term-project)*`;
+
+    navigator.clipboard.writeText(md);
+    toast.success('Formatted PR comment copied to clipboard!');
+  };
+
   return (
     <div className="card ai-review-card">
       <div className="card-header ai-review-header">
-        <div className="card-icon-badge primary">
-          <Sparkles size={20} />
+        <div className="header-left-title">
+          <div className="card-icon-badge primary">
+            <Sparkles size={20} />
+          </div>
+          <div>
+            <h3 className="card-title">AI Pull Request Audit</h3>
+            <p className="card-subtitle">
+              Powered by Google Gemini • Deep contextual code analysis
+            </p>
+          </div>
         </div>
-        <div>
-          <h3 className="card-title">AI Pull Request Audit</h3>
-          <p className="card-subtitle">
-            Powered by Google Gemini • Deep contextual code analysis
-          </p>
-        </div>
+
+        <button
+          onClick={exportMarkdownComment}
+          className="btn btn-ghost btn-sm export-comment-btn"
+          title="Copy markdown formatted review to post as a GitHub comment"
+        >
+          <Copy size={14} />
+          <span>Copy PR Comment</span>
+        </button>
       </div>
 
       <div className="card-body ai-review-body">

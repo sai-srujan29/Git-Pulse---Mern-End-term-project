@@ -7,17 +7,19 @@ import {
   CheckCircle2,
   GitPullRequest,
   Sparkles,
+  History,
 } from 'lucide-react';
 import RepoSelector from '../components/RepoSelector';
 import PRList from '../components/PRList';
 import PRDetailView from '../components/PRDetailView';
 import AIReviewDisplay from '../components/AIReviewDisplay';
+import ReviewHistoryModal from '../components/ReviewHistoryModal';
 import {
   getRepositories,
   getPullRequests,
   getPullRequestDetails,
 } from '../services/repoService';
-import { analyzePullRequest } from '../services/reviewService';
+import { analyzePullRequest, getReviewHistory } from '../services/reviewService';
 import toast from 'react-hot-toast';
 
 const Dashboard = () => {
@@ -35,6 +37,21 @@ const Dashboard = () => {
 
   const [currentReview, setCurrentReview] = useState(null);
   const [analyzing, setAnalyzing] = useState(false);
+
+  const [historyModalOpen, setHistoryModalOpen] = useState(false);
+  const [historyList, setHistoryList] = useState([]);
+
+  const handleOpenHistory = async () => {
+    try {
+      const data = await getReviewHistory();
+      if (data && data.reviews) {
+        setHistoryList(data.reviews);
+      }
+      setHistoryModalOpen(true);
+    } catch (e) {
+      toast.error('Failed to load review history.');
+    }
+  };
 
   useEffect(() => {
     const fetchRepos = async () => {
@@ -178,6 +195,15 @@ const Dashboard = () => {
                 <span className="stat-label">OAuth Session</span>
               </div>
             </div>
+
+            <button
+              onClick={handleOpenHistory}
+              className="btn btn-ghost btn-sm stat-history-btn"
+              title="View past PR review reports"
+            >
+              <History size={16} />
+              <span>Audit History</span>
+            </button>
           </div>
         </div>
 
@@ -227,9 +253,17 @@ const Dashboard = () => {
             )}
           </div>
         </div>
+
+        <ReviewHistoryModal
+          isOpen={historyModalOpen}
+          onClose={() => setHistoryModalOpen(false)}
+          history={historyList}
+          onLoadReview={(rev) => setCurrentReview(rev)}
+        />
       </div>
     </div>
   );
 };
 
 export default Dashboard;
+
