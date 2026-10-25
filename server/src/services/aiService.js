@@ -169,8 +169,25 @@ Respond ONLY with a JSON object in this exact schema (no markdown blocks, no bac
 }
 `;
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
-    const result = await model.generateContent(prompt);
+    const modelCandidates = ['gemini-3.5-flash', 'gemini-3.7-flash', 'gemini-flash-latest'];
+    let result = null;
+    let lastError = null;
+
+    for (const modelName of modelCandidates) {
+      try {
+        const model = genAI.getGenerativeModel({ model: modelName });
+        result = await model.generateContent(prompt);
+        if (result && result.response) break;
+      } catch (err) {
+        lastError = err;
+        console.warn(`Gemini model ${modelName} failed, trying next candidate...`);
+      }
+    }
+
+    if (!result || !result.response) {
+      throw lastError || new Error('All Gemini model candidates failed');
+    }
+
     let text = result.response.text();
 
     text = text.replace(/```json/gi, '').replace(/```/g, '').trim();
