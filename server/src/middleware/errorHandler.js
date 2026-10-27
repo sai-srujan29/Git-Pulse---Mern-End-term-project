@@ -1,6 +1,11 @@
 const errorHandler = (err, req, res, next) => {
-  let statusCode = err.statusCode || 500;
-  let message = err.message || 'Internal Server Error';
+  let statusCode = err.statusCode || err.response?.status || 500;
+  let message = err.response?.data?.message || err.message || 'Internal Server Error';
+
+  if (err.response?.status === 401 || err.statusCode === 401 || err.response?.data?.message === 'Bad credentials') {
+    statusCode = 401;
+    message = 'GitHub access token expired or revoked. Please log in again.';
+  }
 
   if (err.name === 'ValidationError') {
     statusCode = 400;
