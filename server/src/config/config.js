@@ -15,6 +15,9 @@ const config = {
   gemini: {
     apiKey: process.env.GEMINI_API_KEY,
   },
+  groq: {
+    apiKey: process.env.GROQ_API_KEY,
+  },
   clientUrl: process.env.CLIENT_URL || 'http://localhost:5173',
 };
 

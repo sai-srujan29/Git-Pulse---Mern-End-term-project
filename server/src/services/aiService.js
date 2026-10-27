@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import axios from 'axios';
 import config from '../config/config.js';
 
 let genAI = null;
@@ -168,18 +169,64 @@ const buildHeuristicReview = (prDetails) => {
   };
 };
 
-export const analyzePullRequestWithAI = async (prDetails) => {
-  if (!genAI) {
-    return buildHeuristicReview(prDetails);
+const callGroqAI = async (prompt) => {
+  const apiKey = config.groq?.apiKey || process.env.GROQ_API_KEY;
+  if (!apiKey) return null;
+
+  const models = ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant', 'mixtral-8x7b-32768'];
+
+  for (const model of models) {
+    try {
+      console.log(`Attempting Groq AI audit using model: ${model}...`);
+      const response = await axios.post(
+        'https://api.groq.com/openai/v1/chat/completions',
+        {
+          model,
+          messages: [
+            {
+              role: 'system',
+              content:
+                'You are an expert senior software architect conducting an automated Pull Request Code Review & Health Audit. Return ONLY valid raw JSON adhering to the specified schema.',
+            },
+            {
+              role: 'user',
+              content: prompt,
+            },
+          ],
+          response_format: { type: 'json_object' },
+          temperature: 0.2,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${apiKey}`,
+            'Content-Type': 'application/json',
+          },
+          timeout: 10000,
+        }
+      );
+
+      const content = response.data?.choices?.[0]?.message?.content;
+      if (content) {
+        const cleanContent = content.replace(/```json/gi, '').replace(/```/g, '').trim();
+        const parsed = JSON.parse(cleanContent);
+        console.log(`Groq AI audit succeeded with ${model}!`);
+        return parsed;
+      }
+    } catch (err) {
+      console.warn(`Groq AI model ${model} failed:`, err.response?.data?.error?.message || err.message);
+    }
   }
 
-  try {
-    const diffSummary = prDetails.files
-      ?.slice(0, 15)
-      .map((f) => `File: ${f.filename} (+${f.additions}/-${f.deletions})\n${f.patch?.slice(0, 800) || 'No diff text'}`)
-      .join('\n---\n');
+  return null;
+};
 
-    const prompt = `
+export const analyzePullRequestWithAI = async (prDetails) => {
+  const diffSummary = prDetails.files
+    ?.slice(0, 15)
+    .map((f) => `File: ${f.filename} (+${f.additions}/-${f.deletions})\n${f.patch?.slice(0, 800) || 'No diff text'}`)
+    .join('\n---\n');
+
+  const prompt = `
 You are an expert senior software architect conducting an automated Pull Request Code Review & Health Audit.
 Analyze the following GitHub Pull Request and return your evaluation strictly as a valid JSON object.
 
@@ -223,36 +270,40 @@ Respond ONLY with a JSON object in this exact schema (no markdown blocks, no bac
 }
 `;
 
-    const modelCandidates = ['gemini-3.5-flash', 'gemini-3.1-flash-lite', 'gemini-flash-latest'];
-    let result = null;
-    let lastError = null;
+  let parsed = null;
 
+  // 1. Try Google Gemini first if configured
+  if (genAI) {
+    const modelCandidates = ['gemini-3.5-flash', 'gemini-3.1-flash-lite', 'gemini-flash-latest'];
     for (const modelName of modelCandidates) {
       try {
         const model = genAI.getGenerativeModel({ model: modelName });
-        // Use Promise.race with 12s timeout so requests never hang
         const timeoutPromise = new Promise((_, reject) =>
           setTimeout(() => reject(new Error('Gemini timeout (12s)')), 12000)
         );
-        result = await Promise.race([model.generateContent(prompt), timeoutPromise]);
-        if (result && result.response) break;
+        const result = await Promise.race([model.generateContent(prompt), timeoutPromise]);
+        if (result && result.response) {
+          let text = result.response.text();
+          text = text.replace(/```json/gi, '').replace(/```/g, '').trim();
+          parsed = JSON.parse(text);
+          console.log(`Gemini AI audit succeeded with ${modelName}!`);
+          break;
+        }
       } catch (err) {
-        lastError = err;
         console.warn(`Gemini model ${modelName} failed/timed out, trying next candidate...`);
       }
     }
+  }
 
-    if (!result || !result.response) {
-      throw lastError || new Error('All Gemini model candidates failed');
-    }
+  // 2. If Gemini failed or not configured, try Groq AI fallback
+  if (!parsed) {
+    parsed = await callGroqAI(prompt);
+  }
 
-    let text = result.response.text();
-
-    text = text.replace(/```json/gi, '').replace(/```/g, '').trim();
-    const parsed = JSON.parse(text);
-
+  // 3. If an AI provider succeeded, return structured review
+  if (parsed) {
     return {
-      summary: parsed.summary || 'PR reviewed by Gemini AI.',
+      summary: parsed.summary || 'PR reviewed by AI engine.',
       healthScore: Math.min(100, Math.max(0, Number(parsed.healthScore) || 85)),
       riskLevel: ['low', 'medium', 'high'].includes(parsed.riskLevel) ? parsed.riskLevel : 'low',
       breakdown: {
@@ -267,8 +318,9 @@ Respond ONLY with a JSON object in this exact schema (no markdown blocks, no bac
         : 'ready',
       recommendationReason: parsed.recommendationReason || 'Automated audit complete.',
     };
-  } catch (error) {
-    console.warn('Gemini API call failed, falling back to dynamic heuristic engine:', error.message);
-    return buildHeuristicReview(prDetails);
   }
+
+  // 4. Final fallback to dynamic heuristic engine
+  console.warn('AI providers unavailable, falling back to dynamic heuristic engine.');
+  return buildHeuristicReview(prDetails);
 };
