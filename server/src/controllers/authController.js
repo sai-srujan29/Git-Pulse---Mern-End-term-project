@@ -11,19 +11,58 @@ const signToken = (id) => {
 
 export const getGithubAuthUrl = (req, res) => {
   const scope = 'read:user,user:email,repo';
-  const callbackUrl = config.github.callbackUrl || 'http://localhost:5000/api/auth/github/callback';
+  const callbackUrl = config.github.callbackUrl || 'https://git-pulse-mern-end-term-project.onrender.com/api/auth/github/callback';
+
+  let returnTo = req.query.return_to;
+  if (!returnTo && req.headers.referer) {
+    try {
+      returnTo = new URL(req.headers.referer).origin;
+    } catch (e) {
+      // ignore invalid referer
+    }
+  }
+  if (!returnTo) {
+    returnTo = config.clientUrl || 'http://localhost:5173';
+  }
+
+  const state = Buffer.from(JSON.stringify({ returnTo })).toString('base64');
+
   const url = `https://github.com/login/oauth/authorize?client_id=${config.github.clientId}&redirect_uri=${encodeURIComponent(
     callbackUrl
-  )}&scope=${encodeURIComponent(scope)}`;
+  )}&scope=${encodeURIComponent(scope)}&state=${encodeURIComponent(state)}`;
   res.redirect(url);
 };
 
 export const handleGithubCallback = async (req, res, next) => {
   try {
-    const { code } = req.query;
+    const { code, state } = req.query;
+
+    let targetClientUrl = config.clientUrl || 'http://localhost:5173';
+    if (state) {
+      try {
+        const decoded = Buffer.from(state, 'base64').toString('utf8');
+        const parsedState = JSON.parse(decoded);
+        if (parsedState && parsedState.returnTo) {
+          const parsed = new URL(parsedState.returnTo);
+          if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+            targetClientUrl = parsed.origin;
+          }
+        }
+      } catch (e) {
+        try {
+          const raw = Buffer.from(state, 'base64').toString('utf8');
+          const parsed = new URL(raw);
+          if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+            targetClientUrl = parsed.origin;
+          }
+        } catch (err) {
+          console.warn('OAuth state decode failed:', err.message);
+        }
+      }
+    }
 
     if (!code) {
-      return res.redirect(`${config.clientUrl}/login?error=missing_code`);
+      return res.redirect(`${targetClientUrl}/login?error=missing_code`);
     }
 
     const tokenResponse = await axios.post(
@@ -42,7 +81,7 @@ export const handleGithubCallback = async (req, res, next) => {
 
     const accessToken = tokenResponse.data.access_token;
     if (!accessToken) {
-      return res.redirect(`${config.clientUrl}/login?error=oauth_failed`);
+      return res.redirect(`${targetClientUrl}/login?error=oauth_failed`);
     }
 
     const userResponse = await axios.get('https://api.github.com/user', {
@@ -116,7 +155,7 @@ export const handleGithubCallback = async (req, res, next) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    return res.redirect(`${config.clientUrl}/auth/callback?token=${token}`);
+    return res.redirect(`${targetClientUrl}/auth/callback?token=${token}`);
   } catch (error) {
     return next(error);
   }

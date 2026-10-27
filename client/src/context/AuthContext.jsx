@@ -48,7 +48,8 @@ export const AuthProvider = ({ children }) => {
       (import.meta.env.PROD
         ? 'https://git-pulse-mern-end-term-project.onrender.com/api'
         : 'http://localhost:5000/api');
-    window.location.href = `${apiUrl}/auth/github`;
+    const returnTo = encodeURIComponent(window.location.origin);
+    window.location.href = `${apiUrl}/auth/github?return_to=${returnTo}`;
   };
 
   const setAuthToken = (token) => {
