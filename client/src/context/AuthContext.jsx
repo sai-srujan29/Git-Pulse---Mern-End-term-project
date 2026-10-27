@@ -31,6 +31,15 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     checkAuth();
+
+    const handleUnauthorized = () => {
+      localStorage.removeItem('token');
+      localStorage.removeItem('gitpulse_token');
+      setUser(null);
+    };
+
+    window.addEventListener('gitpulse:unauthorized', handleUnauthorized);
+    return () => window.removeEventListener('gitpulse:unauthorized', handleUnauthorized);
   }, []);
 
   const loginWithGithub = () => {

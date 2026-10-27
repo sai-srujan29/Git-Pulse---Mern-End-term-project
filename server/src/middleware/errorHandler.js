@@ -3,6 +3,7 @@ const errorHandler = (err, req, res, next) => {
   let message = err.response?.data?.message || err.message || 'Internal Server Error';
 
   if (err.response?.status === 401 || err.statusCode === 401 || err.response?.data?.message === 'Bad credentials') {
+    res.clearCookie('token');
     statusCode = 401;
     message = 'GitHub access token expired or revoked. Please log in again.';
   }

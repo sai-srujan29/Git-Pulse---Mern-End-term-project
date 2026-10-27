@@ -65,7 +65,11 @@ const Dashboard = () => {
           }
         }
       } catch (err) {
-        toast.error('Failed to load GitHub repositories.');
+        if (err.response?.status === 401) {
+          toast.error('GitHub session expired. Please connect GitHub again.');
+        } else {
+          toast.error('Failed to load GitHub repositories.');
+        }
       } finally {
         setLoadingRepos(false);
       }
