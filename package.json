@@ -1,0 +1,23 @@
+{
+  "name": "gitpulse",
+  "version": "1.0.0",
+  "description": "GitPulse — Automated GitHub PR Health & AI Code Review Engine",
+  "type": "module",
+  "scripts": {
+    "install:all": "npm --prefix server install && npm --prefix client install",
+    "build": "npm --prefix client run build",
+    "start": "npm --prefix server start",
+    "server": "npm --prefix server run dev",
+    "client": "npm --prefix client run dev"
+  },
+  "keywords": [
+    "gitpulse",
+    "github",
+    "code-review",
+    "ai",
+    "gemini",
+    "mern"
+  ],
+  "author": "Sai Srujan",
+  "license": "MIT"
+}

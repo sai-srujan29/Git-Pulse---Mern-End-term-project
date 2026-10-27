@@ -164,6 +164,25 @@ Open your browser and navigate to **`http://localhost:5173`**!
 
 ---
 
+## ⚡ Build and Start Commands
+
+For evaluators and deployment environments:
+
+| Scope | Build Command | Production Start Command | Dev Server Command |
+|---|---|---|---|
+| **Root (Unified)** | `npm run build` | `npm start` | `npm run server` / `npm run client` |
+| **Backend (`/server`)** | *(Node runtime)* | `npm start` | `npm run dev` |
+| **Frontend (`/client`)** | `npm run build` | `npm run preview` | `npm run dev` |
+
+### Quick Commands Reference:
+* **Root Installation:** `npm run install:all`
+* **Build Frontend:** `npm run build` (or `cd client && npm run build`)
+* **Start Server:** `npm start` (or `cd server && npm start`)
+* **Start Dev Frontend:** `cd client && npm run dev` (runs on `http://localhost:5173`)
+* **Start Dev Backend:** `cd server && npm run dev` (runs on `http://localhost:5000`)
+
+---
+
 ## 🔒 Security Best Practices
 * **No Plaintext Credentials:** Secrets and API keys are strictly maintained in local `.env` files and `.gitignore`.
 * **Safe Cookie Policy:** JWT session cookies use `httpOnly: true` and `sameSite: 'lax'` to prevent XSS token theft.
