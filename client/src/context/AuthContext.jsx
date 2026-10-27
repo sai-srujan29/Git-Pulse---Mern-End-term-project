@@ -43,7 +43,11 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const loginWithGithub = () => {
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const apiUrl =
+      import.meta.env.VITE_API_URL ||
+      (import.meta.env.PROD
+        ? 'https://git-pulse-mern-end-term-project.onrender.com/api'
+        : 'http://localhost:5000/api');
     window.location.href = `${apiUrl}/auth/github`;
   };
 

@@ -10,7 +10,7 @@ const config = {
   github: {
     clientId: process.env.GITHUB_CLIENT_ID,
     clientSecret: process.env.GITHUB_CLIENT_SECRET,
-    callbackUrl: process.env.GITHUB_CALLBACK_URL,
+    callbackUrl: process.env.GITHUB_CALLBACK_URL || 'https://git-pulse-mern-end-term-project.onrender.com/api/auth/github/callback',
   },
   gemini: {
     apiKey: process.env.GEMINI_API_KEY,
