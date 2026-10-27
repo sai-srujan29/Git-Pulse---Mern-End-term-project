@@ -206,5 +206,5 @@ For evaluators and deployment environments:
 Demo video drive link -- https://drive.google.com/file/d/1rG3jlihGxcgYiSUSKAfnD6f2POkjK5LR/view?usp=sharing
 
 ## 👨‍💻 Author
-* **Sai Srujan** — [@sai-srujan29](https://github.com/sai-srujan29)
+* **Sai Srujan** — https://drive.google.com/file/d/1rG3jlihGxcgYiSUSKAfnD6f2POkjK5LR/view?usp=sharing
 * Repository: [Git-Pulse---Mern-End-term-project](https://github.com/sai-srujan29/Git-Pulse---Mern-End-term-project)
