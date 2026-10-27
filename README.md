@@ -204,4 +204,5 @@ For evaluators and deployment environments:
 ---
 
 Demo video drive link -- https://drive.google.com/file/d/1rG3jlihGxcgYiSUSKAfnD6f2POkjK5LR/view?usp=sharing
+Vercel live link -- https://git-pulse-mern-end-term-project.vercel.app
 
